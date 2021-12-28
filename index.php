@@ -23,7 +23,7 @@
 
 </head>
 
-<body onload="aquireSettings()">
+<body onload="aquireSettings(), reportWindowSize()">
 <header>
 <div class="parent">
 	<div id="h_bg"><img src="img/BG4.png"/></div>

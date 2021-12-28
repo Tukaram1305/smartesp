@@ -1,3 +1,10 @@
+window.addEventListener('resize', reportWindowSize);
+
+function reportWindowSize() {
+	console.log("e resize W: "+window.innerHeight+" / H: window.innerWidth");
+	var adjWinW = window.innerWidth-80;
+	bigChart.adjustWindowChartW(adjWinW);
+}
 
 class markCharts
 {
@@ -49,6 +56,11 @@ class markCharts
 		document.getElementById("bttest").appendChild(btn1);
 	}
 	
+	adjustWindowChartW(adjWinW)
+	{
+		this.canvas.width = Math.min(adjWinW,1400);
+	}
+
 	setBGspan(grd1)
 	{
 		//console.log("F G: "+grd1+"  Typ:"+typeof grd1+ "  finite?: "+isFinite(grd1))
@@ -227,7 +239,7 @@ class markCharts
 			// etykiety
 			ctx.beginPath();
 			ctx.globalAlpha = 1;
-			ctx.font = "12px sans-serif";
+			ctx.font = "10px sans-serif";
 			ctx.textAlign = "right";
 			let m;
 			if (h%(numSpan*2)==0) m = 90;
@@ -242,11 +254,16 @@ class markCharts
 			ctx.closePath();
 	}
 
+	var numSpanV = parseInt(dataNumElem/coefV);
+	var	lineSpanV= Math.max(parseInt(dataNumElem/coefV/2),1); console.log("Coef lini: "+lineSpanV);
 	// GRIND WERTYKALNY
 	for (let w=0; w<dataNumElem; w++)
 	{
-		ctx.moveTo(((ChartLS)+coefV*w),0);
-		ctx.lineTo(((ChartLS)+coefV*w),ChartH+10);
+		if (w%lineSpanV==0)
+		{
+			ctx.moveTo(((ChartLS)+coefV*w),0);
+			ctx.lineTo(((ChartLS)+coefV*w),ChartH+10);
+		}
 		//ctx.lineTo(((ChartLS)+coefV*w-70),ChartH+45);
 		ctx.strokeStyle = '#fcfcfc'; 
 		ctx.lineWidth = 1;
@@ -267,7 +284,7 @@ class markCharts
 		//if (w%numSpan==0) 
 		ctx.rotate(-90*RAD);
 		//ctx.fillText(DATE.getMilliseconds()/10, ChartLS+15+(coefV)*w, ChartH+40);
-		ctx.fillText((daneX[w]*DEG).toFixed(2), -1*(ChartH+10), ChartLS+5+(coefV)*w);
+		if (w%numSpanV==0) ctx.fillText((daneX[w]*DEG).toFixed(2), -1*(ChartH+10), ChartLS+5+(coefV)*w);
 		ctx.rotate(90*RAD);
 		//console.log("Pozycja yT:("+w+") x["+nnn+"] y["+mmm+"]");
 
@@ -302,8 +319,8 @@ class markCharts
 		ctx.fillText("Markowiak", 10, ChartH+36);
 
 		ctx.fillStyle = "white";
-		ctx.fillText("Całka:", 10, ChartH+56);
-		ctx.fillText(calk, 10, ChartH+72);
+		ctx.fillText("CałkaMZT>", 10, ChartH+56);
+		ctx.fillText(calk.toFixed(4), 10, ChartH+72);
 
 		ctx.textAlign = "right";
 
@@ -440,7 +457,7 @@ var MAGNITUDE = 1.0;
 setInterval(function(){
 	iter++;
 	if (iter%100==0) {MAGNITUDE = Math.random()*3.5; console.log("Mag: "+MAGNITUDE); }
-	test[50] = (Math.round(MAGNITUDE*7.3*Math.sin(rr*0.07556)))*(Math.round(MAGNITUDE*100*Math.sin(4*rr)))+(Math.round(MAGNITUDE*500*Math.sin(0.05*rr)))+(Math.round(25*Math.sin(2*rr))+(Math.round(MAGNITUDE*700*Math.sin(2.33333*rr)))+(Math.round(MAGNITUDE*442*Math.sin(7.5*rr))))+Math.max(100*Math.tan(rr),1000);
+	test[50] = (Math.round(MAGNITUDE*7.3*Math.sin(rr*0.07556)))*(Math.round(MAGNITUDE*100*Math.sin(4*rr)))+(Math.round(MAGNITUDE*500*Math.sin(0.05*rr)))+(Math.round(25*Math.sin(2*rr))+(Math.round(MAGNITUDE*700*Math.sin(2.33333*rr)))+(Math.round(MAGNITUDE*442*Math.sin(7.5*rr))));
 	//test[50] = 4;
 	testY[50] = rr;
 	rr+=0.025;

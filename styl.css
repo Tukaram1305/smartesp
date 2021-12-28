@@ -96,8 +96,8 @@
 .settingsContainer
 {
 	display: inline-flex;
-	flex-direction: row;
 	justify-content: top;
+	flex-flow: row wrap;
 }
 
 .setSubContainer
