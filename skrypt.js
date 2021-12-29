@@ -276,7 +276,7 @@ function httpGetData()
 				var mJson = JSON.parse(this.responseText);
 				TEMP_VAL.innerHTML=mJson.data.temp +" *C";
 				HUM_VAL.innerHTML = mJson.data.hum+" %";
-				PRESS_VAL.innerHTML = mJson.data.press+" hPa";
+				PRESS_VAL.innerHTML = mJson.data.press+"<br> hPa";
 				}
 			};
 			xhr.open("GET", "../smartesp/callback.php", true);

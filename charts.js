@@ -36,7 +36,7 @@ class markCharts
 		this.CHART_GRD_SPAN = 0.35;
 		this.CHART_GRD_TRANS = 0.5;
 
-
+		//this.canvas.height = 400;
 		//FONTY
 		this.labFntName = "sans-serif"
 		this.labFntSize = 12
@@ -134,6 +134,12 @@ class markCharts
 		var ChartH = this.canvas.height-this.chartBordBot;
 
 		var ChartLS = this.chartBordLeft;
+		if (window.innerWidth<1080)
+		{
+			 ChartLS = this.chartBordLeft/2;
+			 ChartW = this.canvas.width-ChartLS;
+		}
+		else ChartLS = this.chartBordLeft;
 		var ChartBS = this.chartBordBot;
 
 		// --- [  (ChartH/2-20) ] - odsuniecie 20px z gory i dolu dla klarownosci
@@ -207,7 +213,7 @@ class markCharts
 	var lineSpan = 1;
 
 	// autoregulacja spanu
-	if (true)
+	if (false)
 	{
 	if (dataMAXMOD<=10) {numSpan = 1; lineSpan = 1;}
 	else if (dataMAXMOD>10 && dataMAXMOD<=50) {numSpan = 2; lineSpan = 2;}
@@ -220,10 +226,11 @@ class markCharts
 
 	//var spcoef = Math.log(dataMAXMOD);
 	//console.log("LN: "+spcoef);
-	//numSpan = parseInt(dataMAXMOD/16,10);
-	//lineSpan= parseInt(dataMAXMOD/10,10);
+	numSpan = parseInt(dataMAXMOD/(0.5*Math.sqrt(dataMAXMOD*0.5)));
+	lineSpan= parseInt(dataMAXMOD/(0.5*Math.sqrt(dataMAXMOD)));
+	console.log("NUM SPAN: "+numSpan)
 
-	// GRIND HORYZONTALNY
+	// GRIND HORYZONTALNY ----------------------------------------------------------------------------------------------GRID V
 	for (let h=1; h<=HDiv; h++)
 	{
 			ctx.beginPath();
@@ -241,8 +248,9 @@ class markCharts
 			ctx.globalAlpha = 1;
 			ctx.font = "10px sans-serif";
 			ctx.textAlign = "right";
+			
 			let m;
-			if (h%(numSpan*2)==0) m = 90;
+			if (h%(numSpan*2)==0 && (window.innerWidth>=1080)) m = 90;
 			else m=40;
 			
 			ctx.fillStyle = "white";
@@ -255,7 +263,7 @@ class markCharts
 	}
 
 	var numSpanV = parseInt(dataNumElem/coefV);
-	var	lineSpanV= Math.max(parseInt(dataNumElem/coefV/2),1); console.log("Coef lini: "+lineSpanV);
+	var	lineSpanV= Math.max(parseInt(dataNumElem/coefV/2),1); //console.log("Coef lini: "+lineSpanV);
 	// GRIND WERTYKALNY
 	for (let w=0; w<dataNumElem; w++)
 	{
@@ -300,14 +308,16 @@ class markCharts
 		ctx.lineWidth = 2;
 		ctx.globalAlpha = 0.5;
 		ctx.stroke();
-		// etykieta zera
+		// etykieta zera , max , min
 		ctx.beginPath();
 		ctx.globalAlpha = 1;
 		ctx.fillStyle = "white";
 		ctx.font = "12px sans-serif";
 		ctx.fillText("0", CanW-10, new0);
-		ctx.fillText("Max: "+dataMAX, CanW-10, 20);
-		ctx.fillText("Min: "+dataMIN, CanW-10, ChartH-10);
+		
+		ctx.textAlign = "left";
+		ctx.fillText("Max: "+dataMAX, ChartLS+5, 20);
+		ctx.fillText("Min: "+dataMIN, ChartLS+5, ChartH-10);
 
 	
 		// logo/calka
@@ -456,7 +466,7 @@ var iter =0;
 var MAGNITUDE = 1.0;
 setInterval(function(){
 	iter++;
-	if (iter%100==0) {MAGNITUDE = Math.random()*3.5; console.log("Mag: "+MAGNITUDE); }
+	if (iter%100==0) {MAGNITUDE = Math.random()*0.1; }
 	test[50] = (Math.round(MAGNITUDE*7.3*Math.sin(rr*0.07556)))*(Math.round(MAGNITUDE*100*Math.sin(4*rr)))+(Math.round(MAGNITUDE*500*Math.sin(0.05*rr)))+(Math.round(25*Math.sin(2*rr))+(Math.round(MAGNITUDE*700*Math.sin(2.33333*rr)))+(Math.round(MAGNITUDE*442*Math.sin(7.5*rr))));
 	//test[50] = 4;
 	testY[50] = rr;
