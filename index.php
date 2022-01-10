@@ -23,7 +23,8 @@
 
 </head>
 
-<body onload="aquireSettings(), reportWindowSize()">
+<!--<body onload="aquireSettings(), reportWindowSize()">-->
+	<body>
 <header>
 <div class="parent">
 	<div id="h_bg"><img src="img/BG4.png"/></div>
@@ -176,9 +177,11 @@ END;
 	<div>
 		<canvas id="bigCan" width="1400px" height="500px" style="border:1px solid #d3d3d3;">
 	</div>
-	<div id="bccon"><span><button type="button">KONFIGURACJA</button> </span>  <span>konsola</span>   </div>
 
-	<div class="settingsContainer">
+	<span><button type="button" class="btn1" id="CH1_SHOW_CONFIG" onclick="hide_show_config('setCont_1')">KONFIGURACJA</button> </span>
+	<div id="bccon">  <span>konsola</span></div>
+
+	<div class="settingsContainer" id="setCont_1">
 		
 		<div class="setSubContainer">
 			<div class="setSubLabels">Gradient pod wykresem</div>

@@ -4,12 +4,15 @@ function reportWindowSize() {
 	console.log("e resize W: "+window.innerHeight+" / H: window.innerWidth");
 	var adjWinW = window.innerWidth-80;
 	bigChart.adjustWindowChartW(adjWinW);
+	bigChart.plot(test,testY);
+	
 }
 
 class markCharts
 {
 	constructor(canID)
 	{
+		this.canID = canID;
 		this.canvas = document.getElementById(canID);
 		this.chartBordLeft = 100;
 		this.chartBordBot = 100;
@@ -18,6 +21,8 @@ class markCharts
 		this.VDivisions = 4;
 
 		this.dispType = "dot";
+		this.winWidChngParams = 1080;
+		this.chartTOPBOT_margin = 20;
 		
 		this.chartBGcol = "#ffffff";
 		this.leftMarginCol ="#222222";
@@ -36,29 +41,22 @@ class markCharts
 		this.CHART_GRD_SPAN = 0.35;
 		this.CHART_GRD_TRANS = 0.5;
 
-		//this.canvas.height = 400;
+		this.ChartMaxWidth = 1400;
 		//FONTY
 		this.labFntName = "sans-serif"
-		this.labFntSize = 12
+		this.labFntSize = 10
 		this.LabFont = this.labFntSize+"px "+this.labFntName;
 		console.log(this.LabFont)
 		
+		this.createControls(canID);
 		//this.canvas.width = this.canvas.width/1.2;
 		//this.canvas.height = this.canvas.height/1.2;
 	}
 
-	btn(canID) {
-		var btn1 = document.createElement("INPUT");
-		btn1.type = "color"
-		//btn1.innerHTML = "<p> nowy </p>";
-		btn1.addEventListener("input",this.setBG(btn1.value,"#aaaaaa","dddddd"))
-		//btn1.classList.add("elem");
-		document.getElementById("bttest").appendChild(btn1);
-	}
 	
 	adjustWindowChartW(adjWinW)
 	{
-		this.canvas.width = Math.min(adjWinW,1400);
+		this.canvas.width = Math.min(adjWinW,this.ChartMaxWidth);
 	}
 
 	setBGspan(grd1)
@@ -84,6 +82,86 @@ class markCharts
 		this.CHART_GRD_TRANS = ct1;
 	}
 
+	createControls(canID) {
+		var mainSetContainer = document.getElementById("setCont_1");
+
+		// pierwszy subkontener
+		var ssc = document.createElement("DIV");
+		ssc.classList.add("setSubContainer");
+		ssc.id = canID+"ssc1";
+		mainSetContainer.appendChild(ssc);
+		// etykieta
+		var ssl = document.createElement("DIV");
+		ssl.classList.add("setSubLabels");
+		ssl.id = canID+"ssl1";
+		document.getElementById(canID+"ssc1").appendChild(ssl);
+		document.getElementById(canID+"ssl1").innerHTML = "Gradienty pod wykresem";
+
+		// 1. color
+		var span1 = document.createElement("SPAN");
+		span1.id = canID+"span1";
+		document.getElementById(canID+"ssc1").appendChild(span1);
+
+		var btn1 = document.createElement("INPUT");
+		btn1.type = "color"
+		btn1.id = canID+"_BTN_GRAD_1";
+		btn1.value = "#222222"
+		btn1.addEventListener("input",cath);
+		//btn1.classList.add("elem");
+		//btn1.addEventListener("input",function(){this.BG_GRAD_C1="#FFFFFF"})
+		document.getElementById(canID+"span1").appendChild(btn1);
+		
+		var lab1 = document.createElement("LABEL");
+		lab1.for = canID+"_BTN_GRAD_1";
+		lab1.id = canID+"lab1";
+		document.getElementById(canID+"span1").appendChild(lab1);
+		document.getElementById(canID+"lab1").innerHTML = "-- Bazowy kolor #1";
+
+		// 2. color
+		span1 = document.createElement("SPAN");
+		span1.id = canID+"span2";
+		document.getElementById(canID+"ssc1").appendChild(span1);
+
+		btn1 = document.createElement("INPUT");
+		btn1.type = "color"
+		btn1.id = canID+"_BTN_GRAD_2";
+		btn1.value = "#212121"
+		btn1.addEventListener("input",cath);
+		//btn1.classList.add("elem");
+		//btn1.addEventListener("input",function(){this.BG_GRAD_C1="#FFFFFF"})
+		document.getElementById(canID+"span2").appendChild(btn1);
+		
+		lab1 = document.createElement("LABEL");
+		lab1.for = canID+"_BTN_GRAD_2";
+		lab1.id = canID+"lab2";
+		document.getElementById(canID+"span2").appendChild(lab1);
+		document.getElementById(canID+"lab2").innerHTML = "-- Bazowy kolor #2";
+
+		ssl = document.createElement("DIV");
+		ssl.classList.add("setSubLabels");
+		ssl.id = canID+"ssl2";
+		document.getElementById(canID+"ssc1").appendChild(ssl);
+		document.getElementById(canID+"ssl2").innerHTML = "Rozpiętość / Skupienie";
+	
+		// slider 
+		span1 = document.createElement("SPAN");
+		span1.id = canID+"span3";
+		document.getElementById(canID+"ssc1").appendChild(span1);
+		var slider1 = document.createElement("INPUT");
+		slider1.id = canID+"_BG_GRD_SPAN";
+		slider1.classList.add("slider2");
+		slider1.type = "range";
+		slider1.min = "0.05";
+		slider1.max = "0.45";
+		slider1.step = "0.01";
+		slider1.value = "0.25";
+		slider1.addEventListener("input",cath)
+		document.getElementById(canID+"span3").appendChild(slider1);
+
+
+	
+	}
+
 	calkaMZT(dane)
 	{
 		var nums = dane.length;
@@ -96,11 +174,11 @@ class markCharts
 		return ((sum));
 	}
 
-	regresja(dane)
+	regresja(dane,daneX)
 	{
 		var a = 0;  var b = 0;  var arY = [];
 		var nums = dane.length;
-		for (let i=0; i<nums; i++) { arY[i] = i; a+=dane[i]; b+=i; }
+		for (let i=0; i<nums; i++) { arY[i] = i; a+=dane[i]; b+=daneX[i]; }
 		a/=nums; b/=nums;
 		var aX = [];  var bX = [];
 		var iloczyn = [];  var sumIlo = 0;  var potega = [];  var sumPoteg = 0;
@@ -116,7 +194,7 @@ class markCharts
 	}
 
 	plot (dane,daneX){
-		var debug = false;
+		var debug = true;
 		// spolczynniki dla stopni i radianow
 		const RAD = 0.01745329251994329576923690768489;
 		const DEG = 57.295779513082320876798154814105;
@@ -134,7 +212,7 @@ class markCharts
 		var ChartH = this.canvas.height-this.chartBordBot;
 
 		var ChartLS = this.chartBordLeft;
-		if (window.innerWidth<1080)
+		if (window.innerWidth<this.winWidChngParams)
 		{
 			 ChartLS = this.chartBordLeft/2;
 			 ChartW = this.canvas.width-ChartLS;
@@ -142,14 +220,6 @@ class markCharts
 		else ChartLS = this.chartBordLeft;
 		var ChartBS = this.chartBordBot;
 
-		// --- [  (ChartH/2-20) ] - odsuniecie 20px z gory i dolu dla klarownosci
-		// glowny wspolczynnik rozpietosci W wykresu/dane(max modul)---------------------------------------------------
-		var coefH = (ChartH/2-20)/(dataMAXMOD);
-		// glowny wspolczynnik rozpietosci H wykresu/ilosc elem--------------------------------------------------------
-		var coefV = (ChartW+(ChartW/dataNumElem))/dataNumElem;
-
-		var bordL = this.chartBordLeft;
-		var prescaler = 1;
 		
 		//console.log(dane)
 		var ctx = this.canvas.getContext("2d");
@@ -160,12 +230,16 @@ class markCharts
 		
 		ctx.globalAlpha = 1;
 		// gradienty
+		var BG_GRD_1 = document.getElementById(this.canID+"_BTN_GRAD_1").value;
+		var BG_GRD_2 = document.getElementById(this.canID+"_BTN_GRAD_2").value;
+		var BG_GRD_SPAN = document.getElementById(this.canID+"_BG_GRD_SPAN").value;
+
 		var bggrd = ctx.createLinearGradient(0, 0, 0, ChartH);
-		bggrd.addColorStop(0, this.BG_GRAD_C1);
-			bggrd.addColorStop(this.C1_BG_GRDSPAN1, this.BG_GRAD_C1);
-		bggrd.addColorStop(0.5, this.BG_GRAD_C2);
-			bggrd.addColorStop(1-this.C1_BG_GRDSPAN1, this.BG_GRAD_C1);
-		bggrd.addColorStop(1, this.BG_GRAD_C1);
+		bggrd.addColorStop(0, BG_GRD_1); console.log("plot bg grd1: "+BG_GRD_1)
+			bggrd.addColorStop(BG_GRD_SPAN, BG_GRD_1);
+		bggrd.addColorStop(0.5, BG_GRD_2);
+			bggrd.addColorStop(1-BG_GRD_SPAN, BG_GRD_1);
+		bggrd.addColorStop(1, BG_GRD_1);
 
 		var lmgrd = ctx.createLinearGradient(0, 0, ChartLS, 0);
 		lmgrd.addColorStop(0, "#004594");
@@ -202,43 +276,121 @@ class markCharts
 
 // linie podzialow | --
 
-	var scaler = 1;
-	var HDiv = dataMAXMOD;
-	if (dataMAXMOD<10) {HDiv = dataMAXMOD*4; scaler =4;}
-	// ox0
-	var new0 = Math.round(ChartH/2);
+		// --- [  (ChartH/2-20) ] - odsuniecie 20px z gory i dolu dla klarownosci
+	// glowny wspolczynnik rozpietosci W wykresu/dane(max modul)---------poprawic------------------------------------------
+	var coefH = (ChartH/2-this.chartTOPBOT_margin)/(dataMAXMOD);
+	// glowny wspolczynnik rozpietosci H wykresu/ilosc elem-----TU NIC NIE ZMIANIAM--------------------------------------
+	var coefV = (ChartW+(ChartW/dataNumElem))/dataNumElem;
 
 	// bazowy line i num span
 	var numSpan = 1;
 	var lineSpan = 1;
-
-	// autoregulacja spanu
-	if (false)
+	
+	// ox0
+	var new0;  // --- x0 top/mid/bot
+	var zero = 0;
+	var czesc ="all";
+	// same dodatnie
+	if (dataMIN >=0)
 	{
-	if (dataMAXMOD<=10) {numSpan = 1; lineSpan = 1;}
-	else if (dataMAXMOD>10 && dataMAXMOD<=50) {numSpan = 2; lineSpan = 2;}
-	else if (dataMAXMOD>50 && dataMAXMOD<=150) {numSpan = 8; lineSpan = 8;}
-	else if (dataMAXMOD>150 && dataMAXMOD<=500) {numSpan = 42; lineSpan = 42;}
-	else if (dataMAXMOD>500 && dataMAXMOD<=2000) {numSpan = 92; lineSpan = 92;}
-	else {	numSpan = parseInt(dataMAXMOD/16,10);
-			lineSpan= parseInt(dataMAXMOD/10,10);}
+		if (dataMAXMOD>dataRange) zero = Math.round(dataMIN);
+		new0 = ChartH;
+		coefH = (ChartH-this.chartTOPBOT_margin)/(dataMAXMOD-zero);
+		
+	}
+	// same ujemne
+	else if (dataMAX <=0)
+	{
+		if (dataMAXMOD>dataRange) zero = Math.round(dataMAX);
+		new0 = 0;
+		coefH = (ChartH-this.chartTOPBOT_margin)/(dataMAXMOD+zero);
+	}
+	// rowny podzial
+	else  {new0= Math.round(ChartH/2-zero); czesc="half" }
+
+	var coefGrid;
+	var newHdiv;
+	var ile_pod;
+	if (czesc=="all") 	{ ile_pod = Math.floor(ChartH/this.labFntSize); }
+	else 				{ ile_pod = Math.floor(ChartH/2/this.labFntSize); }
+	console.log("Podzialy: "+ile_pod)
+	newHdiv = ile_pod;
+
+	 if (czesc=="all")  coefGrid = (ChartH-this.chartTOPBOT_margin)/newHdiv;
+	 else 				coefGrid = (ChartH-this.chartTOPBOT_margin*2)/2/newHdiv;
+
+	var scaler = 1;
+	// autoregulacja spanu (jezeli ++ i --)
+	if (0)
+	{
+	if (dataRange<=10) {numSpan = 1; lineSpan = 1; scaler = 4;}
+	else if (dataRange>10 && dataRange<=50) {numSpan = 2; lineSpan = 2; scaler = 2;}
+	else if (dataRange>50 && dataRange<=150) {numSpan = 8; lineSpan = 8; scaler = 1;}
+	else if (dataRange>150 && dataRange<=500) {numSpan = 60; lineSpan = 60; scaler = 1;}
+	else if (dataRange>500 && dataRange<=2000) {numSpan = 120; lineSpan = 120; scaler = 1;}
+	else {	numSpan = parseInt(dataMAXMOD/20,10);
+			lineSpan= parseInt(dataMAXMOD/20,10);
+			scaler = 1;}
 	}
 
-	//var spcoef = Math.log(dataMAXMOD);
-	//console.log("LN: "+spcoef);
-	numSpan = parseInt(dataMAXMOD/(0.5*Math.sqrt(dataMAXMOD*0.5)));
-	lineSpan= parseInt(dataMAXMOD/(0.5*Math.sqrt(dataMAXMOD)));
-	console.log("NUM SPAN: "+numSpan)
+	//var HDiv = parseInt(dataMAXMOD,10)*scaler;
+	if (dataRange<newHdiv)
+	{
+		scaler = Math.floor(newHdiv/dataRange)
+	}
 
-	// GRIND HORYZONTALNY ----------------------------------------------------------------------------------------------GRID V
-	for (let h=1; h<=HDiv; h++)
+	for (let h=1; h<=newHdiv; h++)
 	{
 			ctx.beginPath();
-				ctx.moveTo(0, new0-coefH*h/scaler);
-				if (h%lineSpan==0) ctx.lineTo(ChartW+ChartLS, new0-coefH*h/scaler);
-				ctx.moveTo(0, new0+coefH*h/scaler);
-				if (h%lineSpan==0) ctx.lineTo(ChartW+ChartLS, new0+coefH*h/scaler);
-			if (h%(lineSpan*2)==0) ctx.strokeStyle = '#dfdfdf'; else ctx.strokeStyle = '#ababab'; 
+					// dodatnie
+									ctx.moveTo(0, new0-coefGrid*h);
+				if ( new0!=0) 		ctx.lineTo(ChartW+ChartLS, new0-coefGrid*h);
+					// ujemne
+									ctx.moveTo(0, new0+coefGrid*h);
+				if ( new0!=ChartH)  ctx.lineTo(ChartW+ChartLS, new0+coefGrid*h);
+			
+				if (h%(2)==0) ctx.strokeStyle = '#aa4422'; else ctx.strokeStyle = '#ababab'; 
+			
+			ctx.lineWidth = 1;
+			ctx.globalAlpha = 0.35;
+			ctx.stroke();
+
+			// etykiety
+
+			ctx.beginPath();
+			ctx.globalAlpha = 1;
+			ctx.font = this.LabFont;
+			ctx.textAlign = "right";
+			
+			let m;
+			if (h%(2)==0 && (window.innerWidth>=this.winWidChngParams)) {m = 90;} else {m=40;}
+												// dodatnie
+												var labNumSpanPlus = dataMAX/newHdiv
+												var labNumSpanMinus = Math.abs(dataMIN)/newHdiv
+							if (h%(2)==0) 	ctx.fillStyle = "orange"; else ctx.fillStyle = "white";
+			if ( new0!=0) 						ctx.fillText((zero+h*labNumSpanPlus).toFixed(2), m, new0-coefGrid*h);
+												// ujemne
+												ctx.fillStyle = "yellow";
+			if ( new0!=ChartH) 					ctx.fillText((zero-h*labNumSpanMinus).toFixed(2), m, new0+coefGrid*h);
+			
+			ctx.fillStyle = "white";
+
+			ctx.closePath();
+	}
+	//var HDiv = parseInt(ChartH/this.labFntSize)
+	// GRIND HORYZONTALNY ----------------------------------------------------------------------------------------------GRID H
+	/*for (let h=1; h<=HDiv; h++)
+	{
+			ctx.beginPath();
+					// dodatnie
+											  		ctx.moveTo(0, new0-coefH*h/scaler);
+				if (h%lineSpan==0 && new0!=0) 		ctx.lineTo(ChartW+ChartLS, new0-coefH*h/scaler);
+					// ujemne
+													ctx.moveTo(0, new0+coefH*h/scaler);
+				if (h%lineSpan==0 && new0!=ChartH && (new0+coefH*h/scaler)<ChartH)  ctx.lineTo(ChartW+ChartLS, new0+coefH*h/scaler);
+			
+				if (h%(lineSpan*2)==0) ctx.strokeStyle = '#dfdfdf'; else ctx.strokeStyle = '#ababab'; 
+			
 			ctx.lineWidth = 1;
 			ctx.globalAlpha = 0.4;
 			ctx.stroke();
@@ -246,25 +398,27 @@ class markCharts
 			// etykiety
 			ctx.beginPath();
 			ctx.globalAlpha = 1;
-			ctx.font = "10px sans-serif";
+			ctx.font = this.LabFont;
 			ctx.textAlign = "right";
 			
 			let m;
-			if (h%(numSpan*2)==0 && (window.innerWidth>=1080)) m = 90;
+			if (h%(numSpan*2)==0 && (window.innerWidth>=this.winWidChngParams)) m = 90;
 			else m=40;
+												// dodatnie
+										 		ctx.fillStyle = "white";
+			if (h%numSpan==0 && new0!=0) 		ctx.fillText((zero+h/scaler).toFixed(1), m, new0-coefH*h/scaler);
+												// ujemne
+											  	ctx.fillStyle = "yellow";
+			if (h%numSpan==0 && new0!=ChartH && (new0+coefH*h/scaler)<ChartH) 	ctx.fillText((zero-h/scaler).toFixed(1), m, new0+coefH*h/scaler);
 			
-			ctx.fillStyle = "white";
-			if (h%numSpan==0) ctx.fillText((h/scaler).toFixed(1), m, new0-coefH*h/scaler);
-			ctx.fillStyle = "yellow";
-			if (h%numSpan==0) ctx.fillText((-h/scaler).toFixed(1), m, new0+coefH*h/scaler);
 			ctx.fillStyle = "white";
 
 			ctx.closePath();
-	}
+	}*/
 
 	var numSpanV = parseInt(dataNumElem/coefV);
 	var	lineSpanV= Math.max(parseInt(dataNumElem/coefV/2),1); //console.log("Coef lini: "+lineSpanV);
-	// GRIND WERTYKALNY
+	// GRIND WERTYKALNY ----------------------------------------------------------------------------------------------- GRID V
 	for (let w=0; w<dataNumElem; w++)
 	{
 		if (w%lineSpanV==0)
@@ -292,7 +446,7 @@ class markCharts
 		//if (w%numSpan==0) 
 		ctx.rotate(-90*RAD);
 		//ctx.fillText(DATE.getMilliseconds()/10, ChartLS+15+(coefV)*w, ChartH+40);
-		if (w%numSpanV==0) ctx.fillText((daneX[w]*DEG).toFixed(2), -1*(ChartH+10), ChartLS+5+(coefV)*w);
+		if (w%numSpanV==0) ctx.fillText((daneX[w]).toFixed(2), -1*(ChartH+10), ChartLS+5+(coefV)*w);
 		ctx.rotate(90*RAD);
 		//console.log("Pozycja yT:("+w+") x["+nnn+"] y["+mmm+"]");
 
@@ -313,24 +467,27 @@ class markCharts
 		ctx.globalAlpha = 1;
 		ctx.fillStyle = "white";
 		ctx.font = "12px sans-serif";
-		ctx.fillText("0", CanW-10, new0);
-		
-		ctx.textAlign = "left";
-		ctx.fillText("Max: "+dataMAX, ChartLS+5, 20);
-		ctx.fillText("Min: "+dataMIN, ChartLS+5, ChartH-10);
 
-	
+
 		// logo/calka
 		ctx.textAlign = "left";
 		ctx.font = "14px sans-serif";
 		var calk = this.calkaMZT(dane);
-		ctx.fillStyle = "red";
-		ctx.fillText("Paweł", 10, ChartH+20);
-		ctx.fillText("Markowiak", 10, ChartH+36);
-
-		ctx.fillStyle = "white";
-		ctx.fillText("CałkaMZT>", 10, ChartH+56);
-		ctx.fillText(calk.toFixed(4), 10, ChartH+72);
+		
+		
+		if (window.innerWidth>=this.winWidChngParams)
+		{
+			ctx.fillStyle = "red";
+			ctx.fillText("Paweł", 10, ChartH+20);
+			ctx.fillText("Markowiak", 10, ChartH+36);
+			ctx.fillStyle = "white";
+			ctx.fillText("CałkaMZT<>", 10, ChartH+56);
+			ctx.fillText(calk.toFixed(4), 10, ChartH+72);
+		}
+		else 
+		{
+			ctx.fillText("dy/dx: <--"+calk.toFixed(4)+"-->", 50, ChartH+90);
+		}
 
 		ctx.textAlign = "right";
 
@@ -343,7 +500,7 @@ class markCharts
 		// glowne rysowanie wykresu
 		for (var i=0; i<dataNumElem; i++)
 		{
-			if (this.dispType==="dot") ctx.lineTo(ChartLS+(i)*coefV, new0-(dane[i]*(coefH)));
+			if (this.dispType==="dot") ctx.lineTo(ChartLS+(i)*coefV, new0-((dane[i]-zero)*(coefH)));
 
 			if (this.dispType==="dotx") 
 			{ctx.beginPath();
@@ -375,12 +532,24 @@ class markCharts
 			ctx.fill();
 		}
 			
+		// chart top/bot margin
+		ctx.globalAlpha = 0.5;
+		ctx.fillStyle = "black";
+		ctx.fillRect(ChartLS, 0, ChartW, this.chartTOPBOT_margin);
+		ctx.fillRect(ChartLS, ChartH-this.chartTOPBOT_margin, ChartW, this.chartTOPBOT_margin);
+		ctx.globalAlpha = 1;
+
+		ctx.fillStyle = "white"
+		ctx.fillText(zero, CanW-10, new0);
+		ctx.textAlign = "left";
+		ctx.fillText("Max: "+dataMAX, ChartLS+5, 16);
+		ctx.fillText("Min: "+dataMIN, ChartLS+5, ChartH-6);
 	// srednie --- arytmetyczna --- RMS --- regresja
 	if (1){
 		ctx.globalAlpha = 1;
 		ctx.fillStyle = "white";
 		ctx.font = "12px sans-serif";
-
+		ctx.textAlign = "right";
 		var sr =0;
 		var srsqr=0;
 		for (let i=0; i<dataNumElem; i++)
@@ -393,6 +562,8 @@ class markCharts
 		srsqr = Math.sqrt(srsqr);
 		var midTXT = "AVG: "+sr.toFixed(4);
 		var midsqrTXT = "RMS: "+srsqr.toFixed(4);
+		sr-=zero;
+		srsqr-=zero;
 
 		ctx.beginPath();
 		ctx.strokeStyle = "blue"
@@ -413,13 +584,13 @@ class markCharts
 		
 
 				// Regresja liniowa
-				var RegCoefs = this.regresja(dane);
+				var RegCoefs = this.regresja(dane,daneX);
 				//console.log("a: "+RegCoefs.a+" / b: "+RegCoefs.b);
 				ctx.beginPath();
 				ctx.setLineDash([15, 8]);
 
-				ctx.moveTo(ChartLS,new0-(RegCoefs.b*coefH));
-				ctx.lineTo(ChartW+ChartLS,new0-((RegCoefs.a*(dataNumElem-1) + RegCoefs.b)*coefH));
+				ctx.moveTo(ChartLS,new0-((RegCoefs.b-zero)*coefH));
+				ctx.lineTo(ChartW+ChartLS,new0-((RegCoefs.a*(dataNumElem-1) + (RegCoefs.b-zero))*coefH));
 				ctx.strokeStyle = "yellow"
 				ctx.lineWidth = 2;
 				ctx.stroke();
@@ -442,7 +613,8 @@ class markCharts
 			let height = window.innerHeight;
 			let width = window.innerWidth;
 			ctxcon.innerHTML += "<br> Window:: H: "+height+" / W: "+width;
-	
+			ctxcon.innerHTML += "<br> ZERO: "+zero+" -- scaler/newHdiv: "+scaler+" / "+newHdiv;
+			ctxcon.innerHTML += "<br> GRID_coef: "+coefGrid
 		}
 
 	} //---plot
@@ -452,14 +624,20 @@ class markCharts
 var test = [];
 var testY = [];
 //for (let i=0; i<20; i++) test[i] = Math.round(Math.random()*40-20);
-for (let i=0; i<51; i++) test[i] = Math.round(Math.random()*50-20);
+var co = 0;
+if (co==1 || co==0) for (let i=0; i<51; i++) test[i] = Math.round(Math.random()*50-20);
+if (co==2) for (let i=0; i<51; i++) test[i] = Math.random()*4;
+if (co==3) for (let i=0; i<51; i++) test[i] = -30-Math.round(Math.random()*5);
+
+
 for (let i=0; i<51; i++) testY[i] = i;
 var bigChart = new markCharts("bigCan");
-bigChart.setBG("#212121","#111122","#221111")
+//bigChart.setBG("#212121","#111122","#221111")
 bigChart.plot(test,testY);
-//bigChart.btn("bigCan");
 
+function cath(){bigChart.plot(test,testY);}
 
+/*
 if (1){
 var rr = 0.0;
 var iter =0;
@@ -476,6 +654,43 @@ setInterval(function(){
 	for (let i=1; i<51; i++) {test[i-1]=test[i]; testY[i-1]=testY[i];}
 	bigChart.plot(test,testY);
 },50);
+}*/
+
+// z requestem ------------ RYSOWANIE
+if (co===0){
+var fps = 30;
+var CHFPS = Math.round(1000/fps);
+var rr = 0.0;
+var iter =0;
+var MAGNITUDE = 1.0;
+function drawChart_1(){
+	
+	setTimeout(function(){
+		iter++;
+		if (iter%100==0) {MAGNITUDE = Math.random()*0.1; }
+		test[50] = (Math.round(MAGNITUDE*7.3*Math.sin(rr*0.07556)))*(Math.round(MAGNITUDE*100*Math.sin(4*rr)))+(Math.round(MAGNITUDE*500*Math.sin(0.05*rr)))+(Math.round(25*Math.sin(2*rr))+(Math.round(MAGNITUDE*700*Math.sin(2.33333*rr)))+(Math.round(MAGNITUDE*442*Math.sin(7.5*rr))));
+		//test[50] = (10*Math.sin(rr))
+		this.rq++;
+		testY[50] = rr;
+		rr+=0.025;
+		//rr+=1;
+		if (rr>=2*Math.PI) rr=0;
+		for (let i=1; i<51; i++) {test[i-1]=test[i]; testY[i-1]=testY[i];}
+		bigChart.plot(test,testY);
+
+		requestAnimationFrame(drawChart_1);
+	},CHFPS);
+
+}}
+// wywolaj po raz pierszy
+if (co===0) requestAnimationFrame(drawChart_1);
+// z requestem ------------ RYSOWANIE END
+
+function hide_show_config(id)
+{
+	var item = document.getElementById(id);
+	if (item.style.display==="inline-flex")  item.style.display = "none";
+	else item.style.display = "inline-flex";
 }
 
 function updateSettings()

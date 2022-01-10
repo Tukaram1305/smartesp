@@ -93,12 +93,14 @@
 
 }
 
-.settingsContainer
+.settingsContainer#setCont_1
 {
-	display: inline-flex;
+	display: none;
 	justify-content: top;
 	flex-flow: row wrap;
+	border: 4px dotted yellow;
 }
+
 
 .setSubContainer
 {

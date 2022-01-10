@@ -4,12 +4,13 @@
   border: 2px solid rgb(23, 50, 124);
   border-radius: 10px;
   color: white;
-  padding: 5px 5px;
+  padding: 1px 5px 1px 5px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
   margin: 4 4 4 4;
+  font-family: 'Sarpanch', sans-serif;
 }
 .btn1:active, .btn1:hover
 {
