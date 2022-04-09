@@ -1,8 +1,23 @@
 <?php
 //$f = fopen("savedSettings.json","w");
 //fwrite($f,json_decode($_POST["sJson"]));
-file_put_contents("savedSettings.json",$_POST['sJson'],LOCK_EX);
-echo $_POST['sJson'];
+if ($_POST['MODE']=='save')
+{
+	$path = $_POST['CANID']."_config.json";
+	file_put_contents($path,$_POST['sJson'],LOCK_EX);
+	echo "ZAPISALEM: ".$_POST['sJson'];	
+}
+else if ($_POST['MODE']=='load')
+{
+	$path = $_POST['CANID']."_config.json";
+	if (file_exists($path))
+	{
+		$setJson = file_get_contents($path);
+		echo $setJson;
+	}
+	else echo "no_file";
+	
+}
 
 
 ?>

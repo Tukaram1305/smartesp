@@ -123,13 +123,13 @@ function hide_show_config(id)
 
 
 // Moja klasa wykresow - konstruktor przyjmuje ID canvas jaki bedzie uzywany
-class markCharts
+class markHist
 {
 	constructor(canID)
 	{
 		this.canID = canID;
 		this.canvas = document.getElementById(canID);
-		this.chartBordLeft = 100;
+		this.chartBordLeft = 0;
 		this.chartBordBot = 100;
 		this.chartBordRight = 30;
 
@@ -656,47 +656,6 @@ class markCharts
 		document.getElementById(canID+"ssc5").appendChild(elem);
 	}
 
-	calkaMZT(daneY)
-	{
-		var nums = daneY.length;
-		//console.log("NUMS: "+nums)
-		var sum=0.0;
-		for (let i=1; i<nums; i++)
-		{
-			sum+=(daneY[i]+daneY[i-1])*0.5;
-		}
-		return ((sum));
-	}
-
-	regresja(daneY,daneX)
-	{
-		var a = 0;  var b = 0;  var arY = [];
-		var nums = daneY.length;
-		for (let i=0; i<nums; i++) { 
-			arY[i] = i; 
-			a+=parseInt(daneY[i]*100,10); 
-			b+=i;
-			//console.log("DY: "+daneY[i]+"  /DX: "+daneX[i])
-			}
-		//console.log("A: "+typeof daneY[0]+" / B: "+typeof daneX[0]+" Axq "+b)
-		a/=nums; b/=nums; // b/=nums
-		var aX = [];  var bX = [];
-		var iloczyn = [];  var sumIlo = 0;  var potega = [];  var sumPoteg = 0;
-		for (let i=0; i<nums; i++)
-			{aX[i]=daneY[i]-a;
-			bX[i]=arY[i]-b;
-			iloczyn[i] = aX[i]*bX[i];
-			sumIlo+=iloczyn[i];
-			potega[i]=Math.pow(aX[i],2);
-			sumPoteg+=potega[i];}
-		var coefA = (sumIlo/sumPoteg)/100;
-		 var coefB = (b-(a*sumIlo/sumPoteg))/100;
-		  var rCf = {a:coefA,b:coefB};
-		console.log("a: "+coefA+", b: "+coefB)
-		return rCf;
-	}
-
-
 	plot (daneY,daneX){
 		var ctx = this.canvas.getContext("2d");
 		var debug = false;
@@ -708,7 +667,7 @@ class markCharts
 
 		// autoreg dolnego marginesu
 		var labLen;
-		if (typeof daneX[daneX.length-1] === 'Number') labLen = (daneX[daneX.length-1].toFixed(2)).toString();
+		if (typeof daneX[daneX.length-1] == Number) labLen = (daneX[daneX.length-1].toFixed(2)).toString();
 		else labLen = daneX[daneX.length-1];
 		this.chartBordBot = ctx.measureText(labLen).width+20
 		//console.log("xNum: "+daneX.length+", last: "+daneX[daneX.length-1]+", eLen: "+daneX[daneX.length-1].length)
@@ -804,7 +763,7 @@ class markCharts
 	// glowny wspolczynnik rozpietosci W wykresu/daneY(max modul)---------poprawic------------------------------------------
 	var coefH = (ChartH/2-this.chartTOPBOT_margin)/(dataMAXMOD);
 	// glowny wspolczynnik rozpietosci H wykresu/ilosc elem-------------------------------------------
-	var coefV = (ChartW+(ChartW/dataNumElem))/dataNumElem;
+	var coefV = (ChartW/dataNumElem);
 
 	var pivot;  // --- os top/mid/bot
 	var zero = 0;
@@ -838,49 +797,21 @@ class markCharts
 	 if (czesc=="all")  coefGrid = (ChartH-this.chartTOPBOT_margin)/newHdiv;
 	 else 				coefGrid = (ChartH-this.chartTOPBOT_margin*2)/2/newHdiv;
 
-	var scaler = 1;
-
-	if (dataRange<newHdiv)
-	{
-		scaler = Math.floor(newHdiv/dataRange)
-	}
-
 	for (let h=1; h<=newHdiv; h++)
 	{
 			ctx.beginPath();
 					// dodatnie
 									ctx.moveTo(0, pivot-coefGrid*h);
-				if ( pivot!=0) 		ctx.lineTo(ChartW+ChartLS, pivot-coefGrid*h);
-					// ujemne
-									ctx.moveTo(0, pivot+coefGrid*h);
-				if ( pivot!=ChartH)  ctx.lineTo(ChartW+ChartLS, pivot+coefGrid*h);
+				if ( pivot!=0 && h%(2)==0) 		ctx.lineTo(ChartW+ChartLS, pivot-coefGrid*h);
+
 			
-				if (h%(2)==0) ctx.strokeStyle = '#aa4422'; else ctx.strokeStyle = '#ababab'; 
+				if (h%(4)==0) ctx.strokeStyle = '#aaaaaa'; else ctx.strokeStyle = '#ababab'; 
 			
 			ctx.lineWidth = 1;
 			ctx.globalAlpha = 0.35;
 			ctx.stroke();
 
-			// etykiety
-			ctx.beginPath();
-			ctx.globalAlpha = 1;
-			ctx.font = this.LabFont;
-			ctx.textAlign = "right";
-			
-			let m;
-			if (h%(2)==0 && (window.innerWidth>=this.winWidChngParams)) {m = 90;} else {m=40;}
-								// dodatnie
-									var labNumSpanPlus = (dataMAX-zero)/newHdiv
-									var labNumSpanMinus = Math.abs(dataMIN-zero)/newHdiv
-			if (h%(2)==0) 			ctx.fillStyle = "orange"; else ctx.fillStyle = "white";
-			if ( pivot!=0) 			ctx.fillText((zero+h*labNumSpanPlus).toFixed(2), m, pivot-coefGrid*h);
-								// ujemne
-									ctx.fillStyle = "yellow";
-			if ( pivot!=ChartH) 	ctx.fillText((zero-h*labNumSpanMinus).toFixed(2), m, pivot+coefGrid*h);
-			
-			ctx.fillStyle = "white";
 
-			ctx.closePath();
 	}
 	// GRIND HORYZONTALNY ----------------------------------------------------------------------------------------------GRID H
 
@@ -894,15 +825,6 @@ class markCharts
 	// GRIND WERTYKALNY ----------------------------------------------------------------------------------------------- GRID V
 	for (let w=0; w<dataNumElem; w++)
 	{
-		if (w%lineSpanV==0)
-		{
-			ctx.moveTo(((ChartLS)+coefV*w),0);
-			ctx.lineTo(((ChartLS)+coefV*w),ChartH+10);
-		}
-		ctx.strokeStyle = '#fcfcfc'; 
-		ctx.lineWidth = 1;
-		ctx.globalAlpha = 0.1;
-		ctx.stroke();
 		ctx.beginPath();
 
 		ctx.globalAlpha = 1;
@@ -916,14 +838,7 @@ class markCharts
 		
 		if (w%numSpanV==0)
 		{
-			console.log(typeof daneX[0])
-			if (typeof (daneX[w]) === 'string'){
-			var Xdata = daneX[w]
-			var space = Xdata.indexOf(" ")
-			var YDM = Xdata.substring(0,space)
-			var HMS = Xdata.substring(space,Xdata.lenth)
-			 ctx.fillText((YDM), -1*(ChartH+10), ChartLS+5+(coefV)*w);
-			 ctx.fillText((HMS), -1*(ChartH+10), ChartLS-this.labFntSize+(coefV)*w);}
+			 ctx.fillText((daneX[w]), -1*(ChartH+10), ChartLS+(ChartW/dataNumElem/2)+(coefV)*w);
 		} 
 		ctx.rotate(90*RAD);
 
@@ -931,14 +846,6 @@ class markCharts
 		ctx.stroke();
 	}
 
-		// wartosc i linia x0
-		ctx.beginPath();
-		ctx.moveTo(0,pivot);
-		ctx.lineTo(ChartW+ChartLS,pivot);
-		ctx.strokeStyle = '#ff4444'; 
-		ctx.lineWidth = 2;
-		ctx.globalAlpha = 0.5;
-		ctx.stroke();
 		// etykieta zera , max , min
 		ctx.beginPath();
 		ctx.globalAlpha = 1;
@@ -947,26 +854,8 @@ class markCharts
 		ctx.textAlign = "left";
 		ctx.font = "14px sans-serif";
 
-		// logo/calka
-		if (showCMZT)
-		{
-			var calk = this.calkaMZT(daneY);
-			
-			if (window.innerWidth>=this.winWidChngParams)
-			{
-				ctx.fillStyle = "grey";
-				ctx.fillText("Paweł", 10, ChartH+20);
-				ctx.fillText("Markowiak", 10, ChartH+36);
-				ctx.fillStyle = "white";
-				ctx.fillText("C(MZT)", 10, ChartH+56);
-				ctx.fillText(calk.toFixed(4), 10, ChartH+72);
-			}
-			else {ctx.fillText("cMZT:"+calk.toFixed(4), 50, ChartH+90);}
-		}
-
-		ctx.textAlign = "right";
-		ctx.lineJoin = "round"; // bevel round miter
-
+		ctx.textAlign = "center";
+		
 		if (dispType==="line" || dispType==="lpd")
 		{
 			ctx.beginPath();
@@ -974,55 +863,29 @@ class markCharts
 			// glowne rysowanie wykresu
 			for (var i=0; i<dataNumElem; i++)
 			{
-				ctx.lineTo(ChartLS+(i)*coefV, pivot-((daneY[i]-zero)*(coefH)));
+				var ccoef = 220/dataMAXMOD
+				var hex = hslToHex(120+daneY[i]*ccoef,50,50)
+				ctx.fillStyle = hex
+				ctx.fillRect(ChartLS+(i)*coefV,ChartH,(ChartW/(dataNumElem+1)),-1*daneY[i]*coefH)
+				ctx.fillStyle = "white";
+				ctx.fillText((daneY[i]), ChartLS+(i)*coefV+(ChartW/dataNumElem/2), ChartH-daneY[i]*coefH-5);
+				//ctx.lineTo(ChartLS+(i)*coefV, pivot-((daneY[i]-zero)*(coefH)));
 			}
 			//zamknij sciezke w prawym dole
-			ctx.lineTo(CanW-this.chartBordRight,pivot-((daneY[dataNumElem-1]-zero)*(coefH)));
-			ctx.lineTo(CanW-this.chartBordRight,pivot);
-			ctx.moveTo(ChartLS,pivot);
+
 			ctx.strokeStyle = lineColor 
 			ctx.lineWidth = lineWidth
 			ctx.closePath();
 			ctx.stroke();
 		}
-
-
-		// wypelnij (gradienty+span)
-			var grd = ctx.createLinearGradient(0, 0, 0, ChartH);
-			grd.addColorStop(0, CHART_GRD_TOP);
-			grd.addColorStop(CHART_GRD_SPAN, CHART_GRD_TOP);
-			if (czesc!="all") grd.addColorStop(0.5, CHART_GRD_MID);
-			grd.addColorStop(1-CHART_GRD_SPAN, CHART_GRD_BOT);
-			grd.addColorStop(1, CHART_GRD_BOT);
-
-			ctx.globalAlpha = CHART_GRD_TRANS;
-			ctx.fillStyle = grd;
-			ctx.fill();
-		
-
-		if (dispType==="dot" || dispType==="lpd") {
-			for (var i=0; i<dataNumElem; i++)
-			{
-				ctx.beginPath();
-				ctx.arc(ChartLS+i*coefV,pivot-((daneY[i]-zero)*(coefH)),dotWidth,0,2*Math.PI);
-				ctx.fillStyle = dotColor;
-				ctx.globalAlpha = 1;
-				ctx.fill();
-			}}
 			
 		// chart top/bot margin
 		ctx.globalAlpha = 0.18;
 		ctx.fillStyle = "black";
 		ctx.fillRect(ChartLS, 0, ChartW, this.chartTOPBOT_margin);
-		ctx.fillRect(ChartLS, ChartH-this.chartTOPBOT_margin, ChartW, this.chartTOPBOT_margin);
 		ctx.globalAlpha = 1;
 
-		// min/max
-		ctx.fillStyle = "white"
-		ctx.fillText(zero, CanW-10, pivot);
-		ctx.textAlign = "left";
-		if (showMAX) ctx.fillText("Max: "+dataMAX, ChartLS+5, 16);
-		if (showMIN) ctx.fillText("Min: "+dataMIN, ChartLS+5, ChartH-6);
+
 	// srednie --- arytmetyczna --- RMS --- regresja
 	if (1){
 		ctx.lineWidth = 1;
@@ -1082,24 +945,6 @@ class markCharts
 		
 		if (showRMS) ctx.fillText(midsqrTXT, CanW-10-this.chartBordRight, pivot-srsqr*coefH);
 		
-
-		// Regresja liniowa
-		if (showREG)
-		{
-			var RegCoefs = this.regresja(daneY,daneX);
-			ctx.beginPath();
-			ctx.setLineDash([15, 8]);
-			var A = pivot-zero-((RegCoefs.b)*coefH)
-			var B = pivot-zero-(((RegCoefs.a) + (RegCoefs.b))*coefH)
-			console.log("REG a:"+A+" /b: "+B+" coef-a,b:"+RegCoefs.a+"/"+RegCoefs.b)
-			ctx.moveTo(ChartLS,A)
-			ctx.lineTo(ChartW+ChartLS,B);
-			ctx.strokeStyle = "yellow"
-			ctx.lineWidth = 2;
-			ctx.stroke();
-			ctx.setLineDash([]);
-			ctx.beginPath();
-		}
 
 	}	// KONIEC SREDNICH	
 
